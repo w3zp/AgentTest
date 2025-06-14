@@ -1,19 +1,16 @@
-# AgentTest
+# Pong Game
 
-## Sales Analyzer
+This repository contains a simple text-based Pong simulation written in Python.
+The game runs in the terminal and displays an automated match between two AI
+paddles. The script prints a small board showing the ball and paddles as it
+moves.
 
-This project provides a simple Python script to analyze CSV sales data and output revenue statistics.
+## Running
 
-### Usage
+Execute the game with:
 
-1. Place your sales data in a CSV file with columns: `Date`, `Product`, `Quantity`, `UnitPrice`.
-2. Run the analyzer and point it to your CSV file:
-   ```bash
-   python3 src/sales_analyzer.py path/to/your_sales.csv
-   ```
-3. The script will display total revenue and the top-selling products.
-
-Example using the included `sample_sales.csv`:
 ```bash
-python3 src/sales_analyzer.py sample_sales.csv
+python3 src/pong.py
 ```
+
+The program will run for a short period and display the score at the end.
