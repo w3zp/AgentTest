@@ -14,3 +14,11 @@ python3 src/pong.py
 ```
 
 The program will run for a short period and display the score at the end.
+
+## Drawing Shapes in the Browser
+
+A small HTML/JavaScript demo allows you to draw rectangles or squares using the mouse.
+Hold the **Shift** key while dragging to constrain the shape to a square.
+The current width and height are displayed while you draw.
+
+Open the demo by opening `src/draw/index.html` in a web browser.
