@@ -26,7 +26,8 @@ for (let i = 0; i < numItems; i++) {
     items.push({
         x: Math.random() * (machine.width - itemSize) + machine.x + itemSize / 2,
         y: machine.y + machine.height - 60 - Math.random() * 120,
-        caught: false
+        caught: false,
+        held: false
     });
 }
 
@@ -90,22 +91,25 @@ function drawMachine() {
 }
 
 function drawSeal(item) {
+    const x = item.held ? crane.x : item.x;
+    const y = item.held ? crane.y + crane.size + itemSize / 2 : item.y;
+
     ctx.fillStyle = '#ddd';
     ctx.beginPath();
-    ctx.ellipse(item.x, item.y, itemSize * 0.8, itemSize * 0.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y, itemSize * 0.8, itemSize * 0.4, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.ellipse(item.x + itemSize * 0.5, item.y - itemSize * 0.2, itemSize * 0.3, itemSize * 0.3, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + itemSize * 0.5, y - itemSize * 0.2, itemSize * 0.3, itemSize * 0.3, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.arc(item.x + itemSize * 0.4, item.y - itemSize * 0.25, itemSize * 0.05, 0, Math.PI * 2);
-    ctx.arc(item.x + itemSize * 0.6, item.y - itemSize * 0.25, itemSize * 0.05, 0, Math.PI * 2);
+    ctx.arc(x + itemSize * 0.4, y - itemSize * 0.25, itemSize * 0.05, 0, Math.PI * 2);
+    ctx.arc(x + itemSize * 0.6, y - itemSize * 0.25, itemSize * 0.05, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(item.x + itemSize * 0.5, item.y - itemSize * 0.15, itemSize * 0.06, 0, Math.PI * 2);
+    ctx.arc(x + itemSize * 0.5, y - itemSize * 0.15, itemSize * 0.06, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -135,7 +139,7 @@ function draw() {
     drawMachine();
 
     items.forEach(item => {
-        if (!item.caught) {
+        if (!item.caught || item.held) {
             drawSeal(item);
         }
     });
@@ -152,15 +156,32 @@ draw();
 function attemptCatch() {
     attempts++;
     const success = Math.random() < 0.25;
+
+    let target = null;
     items.forEach(item => {
-        if (!item.caught && Math.abs(item.x - crane.x) < itemSize && Math.abs(item.y - crane.y - crane.size) < itemSize) {
-            if (success) {
-                item.caught = true;
-            }
+        if (!item.caught && !item.held && Math.abs(item.x - crane.x) < itemSize && Math.abs(item.y - crane.y - crane.size) < itemSize) {
+            target = item;
         }
     });
-    message = success ? 'You won a seal!' : 'No luck!';
-    playSound(success);
+
+    if (target && success) {
+        target.caught = true;
+        target.held = true;
+        crane.holding = target;
+        message = 'Seal grabbed! Press space to drop.';
+    } else {
+        message = 'No luck!';
+    }
+    playSound(!!target && success);
+}
+
+function dropItem() {
+    if (crane.holding) {
+        crane.holding.held = false;
+        crane.holding = null;
+        message = 'You won a seal!';
+        playSound(true);
+    }
 }
 
 document.addEventListener('keydown', e => {
@@ -178,7 +199,11 @@ document.addEventListener('keydown', e => {
             crane.y = Math.min(crane.y + 20, machine.y + machine.height - 60);
             break;
         case ' ':
-            attemptCatch();
+            if (crane.holding) {
+                dropItem();
+            } else {
+                attemptCatch();
+            }
             break;
     }
     draw();
