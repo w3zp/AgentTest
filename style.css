@@ -1,17 +1,20 @@
 body {
     margin: 0;
-    background: #111;
-    color: #fff;
     display: flex;
+    height: 100vh;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    font-family: sans-serif;
-    overflow: hidden;
+    background: repeating-linear-gradient(45deg, #ff4e50, #ff4e50 10px, #f9d423 10px, #f9d423 20px, #24fe41 20px, #24fe41 30px, #3f5efb 30px, #3f5efb 40px);
+    background-size: 200% 200%;
+    animation: graffiti 10s linear infinite;
+}
+
+@keyframes graffiti {
+    0% {background-position: 0 0;}
+    100% {background-position: 400px 400px;}
 }
 
 canvas {
-    background: #222;
-    border: 5px solid #555;
-    box-shadow: 0 0 20px #f0f;
+    border: 5px solid #333;
+    background: rgba(255,255,255,0.9);
 }
