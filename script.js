@@ -47,8 +47,62 @@ function drawClaw() {
 
 function getSealImage() {
     if (!getSealImage.cache) {
+        const off = document.createElement('canvas');
+        off.width = 64;
+        off.height = 64;
+        const octx = off.getContext('2d');
+
+        // body
+        const bodyGradient = octx.createRadialGradient(32, 40, 10, 32, 40, 28);
+        bodyGradient.addColorStop(0, '#f0f0f0');
+        bodyGradient.addColorStop(1, '#777');
+        octx.fillStyle = bodyGradient;
+        octx.beginPath();
+        octx.ellipse(32, 42, 24, 18, 0, 0, Math.PI * 2);
+        octx.fill();
+
+        // head
+        const headGradient = octx.createRadialGradient(32, 26, 5, 32, 26, 15);
+        headGradient.addColorStop(0, '#ffffff');
+        headGradient.addColorStop(1, '#888');
+        octx.fillStyle = headGradient;
+        octx.beginPath();
+        octx.ellipse(32, 26, 12, 10, 0, 0, Math.PI * 2);
+        octx.fill();
+
+        // flippers
+        octx.fillStyle = '#888';
+        octx.beginPath();
+        octx.ellipse(16, 48, 8, 4, 0, 0, Math.PI * 2);
+        octx.fill();
+        octx.beginPath();
+        octx.ellipse(48, 48, 8, 4, 0, 0, Math.PI * 2);
+        octx.fill();
+
+        // eyes and nose
+        octx.fillStyle = '#000';
+        octx.beginPath();
+        octx.arc(28, 24, 2, 0, Math.PI * 2);
+        octx.fill();
+        octx.beginPath();
+        octx.arc(36, 24, 2, 0, Math.PI * 2);
+        octx.fill();
+        octx.beginPath();
+        octx.arc(32, 30, 2, 0, Math.PI * 2);
+        octx.fill();
+
+        // simple whiskers
+        octx.strokeStyle = '#000';
+        octx.lineWidth = 1;
+        octx.beginPath();
+        octx.moveTo(32, 30);
+        octx.lineTo(24, 32);
+        octx.moveTo(32, 30);
+        octx.lineTo(40, 32);
+        octx.stroke();
+
         const img = new Image();
-        img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAAVUlEQVR42u3TMQ0AAAgDILV/51G4oKAKJEg24Rjve5XEAQcABIfAERHwoOiAgiCvAAAEIEscUZgGfV5ABABAANAHQAAVBXgA0APkEBADFoAIBAcIATiMpQ+iy52cAAAAASUVORK5CYII=';
+        img.src = off.toDataURL();
         getSealImage.cache = img;
     }
     return getSealImage.cache;
