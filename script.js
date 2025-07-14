@@ -1,126 +1,200 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const clawWidth = 40;
-const clawHeight = 20;
-let clawX = canvas.width / 2;
-let clawY = 50;
-let dropping = false;
-let dropProgress = 0;
-let attempts = 0;
-let wins = 0;
+const width = canvas.width;
+const height = canvas.height;
 
-const seals = [];
-const sealRadius = 20;
-const maxSeals = 5;
+const crane = {
+    x: width / 2,
+    y: 50,
+    size: 40,
+    holding: null
+};
 
-function initSeals() {
-    for (let i = 0; i < maxSeals; i++) {
-        const x = 80 + Math.random() * (canvas.width - 160);
-        const y = canvas.height - 80 - Math.random() * 40;
-        seals.push({ x, y, caught: false });
-    }
-}
+const items = [];
+const numItems = 6;
+const itemSize = 30;
 
-function drawMachine() {
-    ctx.fillStyle = '#ccc';
-    ctx.fillRect(100, 80, canvas.width - 200, canvas.height - 160);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(100, 80, canvas.width - 200, canvas.height - 160);
-}
-
-function drawSeals() {
-    seals.forEach(seal => {
-        if (!seal.caught) {
-            const img = getSealImage();
-            ctx.drawImage(img, seal.x - sealRadius, seal.y - sealRadius, sealRadius * 2, sealRadius * 2);
-        }
+for (let i = 0; i < numItems; i++) {
+    items.push({
+        x: Math.random() * (width - itemSize) + itemSize / 2,
+        y: Math.random() * (height - 200) + 200,
+        caught: false
     });
 }
 
-function drawClaw() {
-    ctx.fillStyle = '#666';
-    ctx.fillRect(clawX - clawWidth / 2, clawY - clawHeight, clawWidth, clawHeight);
-    ctx.fillRect(clawX - 5, 0, 10, clawY - clawHeight);
-}
+        const off = document.createElement('canvas');
+        off.width = 64;
+        off.height = 64;
+        const octx = off.getContext('2d');
 
-function getSealImage() {
-    if (!getSealImage.cache) {
-        const img = new Image();
-        img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAAVUlEQVR42u3TMQ0AAAgDILV/51G4oKAKJEg24Rjve5XEAQcABIfAERHwoOiAgiCvAAAEIEscUZgGfV5ABABAANAHQAAVBXgA0APkEBADFoAIBAcIATiMpQ+iy52cAAAAASUVORK5CYII=';
-        getSealImage.cache = img;
-    }
-    return getSealImage.cache;
-}
+        // body
+        const bodyGradient = octx.createRadialGradient(32, 40, 10, 32, 40, 28);
+        bodyGradient.addColorStop(0, '#f0f0f0');
+        bodyGradient.addColorStop(1, '#777');
+        octx.fillStyle = bodyGradient;
+        octx.beginPath();
+        octx.ellipse(32, 42, 24, 18, 0, 0, Math.PI * 2);
+        octx.fill();
 
-function playSound() {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = 'square';
-    oscillator.frequency.setValueAtTime(220, audioCtx.currentTime);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+        // head
+        const headGradient = octx.createRadialGradient(32, 26, 5, 32, 26, 15);
+        headGradient.addColorStop(0, '#ffffff');
+        headGradient.addColorStop(1, '#888');
+        octx.fillStyle = headGradient;
+        octx.beginPath();
+        octx.ellipse(32, 26, 12, 10, 0, 0, Math.PI * 2);
+        octx.fill();
+
+        // flippers
+        octx.fillStyle = '#888';
+        octx.beginPath();
+        octx.ellipse(16, 48, 8, 4, 0, 0, Math.PI * 2);
+        octx.fill();
+        octx.beginPath();
+        octx.ellipse(48, 48, 8, 4, 0, 0, Math.PI * 2);
+        octx.fill();
+
+        // eyes and nose
+        octx.fillStyle = '#000';
+        octx.beginPath();
+        octx.arc(28, 24, 2, 0, Math.PI * 2);
+        octx.fill();
+        octx.beginPath();
+        octx.arc(36, 24, 2, 0, Math.PI * 2);
+        octx.fill();
+        octx.beginPath();
+        octx.arc(32, 30, 2, 0, Math.PI * 2);
+        octx.fill();
+
+        // simple whiskers
+        octx.strokeStyle = '#000';
+        octx.lineWidth = 1;
+        octx.beginPath();
+        octx.moveTo(32, 30);
+        octx.lineTo(24, 32);
+        octx.moveTo(32, 30);
+        octx.lineTo(40, 32);
+        octx.stroke();
+
+        img.src = off.toDataURL();
+let successes = 0;
+let message = '';
+
+const bgOsc = new (window.AudioContext || window.webkitAudioContext)();
+function startBackgroundMusic() {
+    const oscillator = bgOsc.createOscillator();
+    const gain = bgOsc.createGain();
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.value = 220;
+    gain.gain.value = 0.05;
+    oscillator.connect(gain).connect(bgOsc.destination);
     oscillator.start();
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    oscillator.stop(bgOsc.currentTime + 1000);
+}
+startBackgroundMusic();
+
+function playSound(win) {
+    const ctxx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctxx.createOscillator();
+    const gain = ctxx.createGain();
+    osc.frequency.value = win ? 880 : 110;
+    osc.type = 'triangle';
+    gain.gain.value = 0.2;
+    osc.connect(gain).connect(ctxx.destination);
+    osc.start();
+    osc.stop(ctxx.currentTime + 0.3);
 }
 
-function update() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMachine();
-    drawSeals();
-    if (dropping) {
-        dropProgress += 5;
-        clawY = 50 + dropProgress;
-        if (clawY >= canvas.height - 100) {
-            checkCatch();
-            dropping = false;
-            clawY = 50;
-            dropProgress = 0;
-        }
+function drawGraffiti() {
+    for (let i = 0; i < 100; i++) {
+        ctx.strokeStyle = `hsl(${Math.random()*360}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.moveTo(Math.random()*width, Math.random()*height);
+        ctx.lineTo(Math.random()*width, Math.random()*height);
+        ctx.stroke();
     }
-    drawClaw();
-    requestAnimationFrame(update);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillText("Ethan's Crane Game", width/2 - 120, 40);
 }
 
-function checkCatch() {
+drawGraffiti();
+
+function draw() {
+    ctx.clearRect(0, 0, width, height);
+    drawGraffiti();
+
+    // Draw items
+    ctx.fillStyle = '#ccc';
+    items.forEach(item => {
+        if (!item.caught) {
+            ctx.beginPath();
+            ctx.ellipse(item.x, item.y, itemSize/2, itemSize/2, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#eee';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.fillText('seal', item.x - 12, item.y + 4);
+        }
+    });
+
+    // Draw crane arm
+    ctx.strokeStyle = '#0ff';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(width/2, 0);
+    ctx.lineTo(crane.x, crane.y - crane.size/2);
+    ctx.stroke();
+
+    // Draw claw
+    ctx.beginPath();
+    ctx.moveTo(crane.x - crane.size/2, crane.y);
+    ctx.lineTo(crane.x + crane.size/2, crane.y);
+    ctx.moveTo(crane.x - crane.size/2, crane.y);
+    ctx.lineTo(crane.x - crane.size/2, crane.y + crane.size);
+    ctx.moveTo(crane.x + crane.size/2, crane.y);
+    ctx.lineTo(crane.x + crane.size/2, crane.y + crane.size);
+    ctx.stroke();
+
+    // Message
+    ctx.fillStyle = 'yellow';
+    ctx.fillText(message, 20, height - 20);
+}
+
+draw();
+
+function attemptCatch() {
     attempts++;
-    const threshold = 30;
-    for (const seal of seals) {
-        if (!seal.caught) {
-            const dx = seal.x - clawX;
-            const dy = seal.y - (canvas.height - 100);
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < threshold) {
-                if (Math.random() < 0.33) {
-                    seal.caught = true;
-                    wins++;
-                    playSound();
-                    alert('You won! Total wins: ' + wins + '/' + attempts);
-                } else {
-                    playSound();
-                    alert('Close! Try again.');
-                }
-                return;
+    let success = Math.random() < 0.25;
+    items.forEach(item => {
+        if (!item.caught && Math.abs(item.x - crane.x) < itemSize && Math.abs(item.y - crane.y) < itemSize) {
+            if (success) {
+                item.caught = true;
+                successes++;
             }
         }
-    }
-    playSound();
-    alert('Miss!');
+    });
+    message = success ? 'You won a seal!' : 'No luck!';
+    playSound(success);
 }
 
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') {
-        clawX = Math.max(120, clawX - 20);
-    } else if (e.key === 'ArrowRight') {
-        clawX = Math.min(canvas.width - 120, clawX + 20);
-    } else if (e.key === ' ') {
-        if (!dropping) {
-            dropping = true;
-        }
+document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+        case 'ArrowLeft':
+            crane.x = Math.max(crane.x - 20, crane.size/2);
+            break;
+        case 'ArrowRight':
+            crane.x = Math.min(crane.x + 20, width - crane.size/2);
+            break;
+        case 'ArrowUp':
+            crane.y = Math.max(crane.y - 20, crane.size/2 + 40);
+            break;
+        case 'ArrowDown':
+            crane.y = Math.min(crane.y + 20, height - crane.size);
+            break;
+        case ' ':
+            attemptCatch();
+            break;
     }
+    draw();
 });
-
-initSeals();
-update();
