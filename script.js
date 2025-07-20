@@ -6,7 +6,7 @@ const beltHeight = 20;
 const machineX = 80;
 const ovenX = 250;
 const ovenWidth = 150;
-const plateX = canvas.width - 100;
+const plateX = canvas.width - 250;
 const plateY = beltY + 40;
 
 const pancakes = [];
@@ -41,6 +41,32 @@ function drawPlate() {
     ctx.fill();
     ctx.strokeStyle = '#ccc';
     ctx.stroke();
+}
+
+function drawSeal() {
+    const baseX = plateX + 120;
+    const baseY = plateY - 30;
+    ctx.fillStyle = '#6a6a6a';
+    ctx.beginPath();
+    ctx.ellipse(baseX, baseY, 70, 50, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.ellipse(baseX + 50, baseY - 60, 30, 30, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(baseX + 40, baseY - 65, 4, 0, Math.PI * 2);
+    ctx.arc(baseX + 60, baseY - 65, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(baseX + 50, baseY - 55, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = '20px sans-serif';
+    ctx.fillText('More pancakes!', baseX - 40, baseY - 90);
 }
 
 function drawPancake(p) {
@@ -98,6 +124,7 @@ function draw() {
     drawMachine();
     drawOven();
     drawPlate();
+    drawSeal();
     updatePancakes();
     pancakes.forEach(drawPancake);
     requestAnimationFrame(draw);
