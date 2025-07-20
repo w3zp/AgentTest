@@ -12,6 +12,19 @@ const plateY = beltY + 40;
 const pancakes = [];
 const radius = 20;
 const thickness = 12;
+let leverPressFrames = 0;
+
+function ellipsePath(x, y, rx, ry) {
+    if (typeof ctx.ellipse === 'function') {
+        ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    } else {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(rx, ry);
+        ctx.arc(0, 0, 1, 0, Math.PI * 2);
+        ctx.restore();
+    }
+}
 
 let stackCount = 0;
 let captionEndTime = 0;
@@ -24,6 +37,14 @@ function drawConveyor() {
 function drawMachine() {
     ctx.fillStyle = '#999';
     ctx.fillRect(machineX - 40, beltY - 80, 80, 80);
+    // draw lever
+    ctx.save();
+    ctx.translate(machineX + 40, beltY - 70);
+    const angle = leverPressFrames > 0 ? Math.PI / 4 : 0;
+    ctx.rotate(angle);
+    ctx.fillStyle = '#444';
+    ctx.fillRect(0, -5, 40, 10);
+    ctx.restore();
     ctx.fillStyle = '#777';
     ctx.fillRect(machineX - 10, beltY - 90, 20, 30);
 }
@@ -38,7 +59,7 @@ function drawOven() {
 function drawPlate() {
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.ellipse(plateX, plateY + 6, 60, 18, 0, 0, Math.PI * 2);
+    ellipsePath(plateX, plateY + 6, 60, 18);
     ctx.fill();
     ctx.strokeStyle = '#ccc';
     ctx.stroke();
@@ -49,11 +70,11 @@ function drawSeal() {
     const baseY = plateY - 30;
     ctx.fillStyle = '#6a6a6a';
     ctx.beginPath();
-    ctx.ellipse(baseX, baseY, 70, 50, 0, 0, Math.PI * 2);
+    ellipsePath(baseX, baseY, 70, 50);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.ellipse(baseX + 50, baseY - 60, 30, 30, 0, 0, Math.PI * 2);
+    ellipsePath(baseX + 50, baseY - 60, 30, 30);
     ctx.fill();
 
     ctx.fillStyle = '#000';
@@ -83,11 +104,14 @@ function drawPancake(p) {
     }
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.ellipse(p.x, p.y, radius, thickness / 2, 0, 0, Math.PI * 2);
+    ellipsePath(p.x, p.y, radius, thickness / 2);
     ctx.fill();
 }
 
 function updatePancakes() {
+    if (leverPressFrames > 0) {
+        leverPressFrames--;
+    }
     pancakes.forEach(p => {
         if (p.stage === 'moving') {
             p.x += 2;
@@ -120,6 +144,7 @@ function spawnPancake() {
     };
     pancakes.push(pancake);
     stackCount++;
+    leverPressFrames = 10;
 }
 
 function draw() {
