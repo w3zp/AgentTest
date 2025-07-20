@@ -14,6 +14,7 @@ const radius = 20;
 const thickness = 12;
 
 let stackCount = 0;
+let captionEndTime = 0;
 
 function drawConveyor() {
     ctx.fillStyle = '#555';
@@ -65,8 +66,10 @@ function drawSeal() {
     ctx.arc(baseX + 50, baseY - 55, 6, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.font = '20px sans-serif';
-    ctx.fillText('More pancakes!', baseX - 40, baseY - 90);
+    if (Date.now() <= captionEndTime) {
+        ctx.font = '20px sans-serif';
+        ctx.fillText('More pancakes!', baseX - 40, baseY - 90);
+    }
 }
 
 function drawPancake(p) {
@@ -101,6 +104,7 @@ function updatePancakes() {
             } else {
                 p.y = targetY;
                 p.stage = 'stacked';
+                captionEndTime = Date.now() + 5000;
             }
         }
     });
