@@ -1,180 +1,112 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const clawWidth = 40;
-const clawHeight = 20;
-let clawX = canvas.width / 2;
-let clawY = 50;
-let dropping = false;
-let dropProgress = 0;
-let attempts = 0;
-let wins = 0;
+const beltY = canvas.height - 120;
+const beltHeight = 20;
+const machineX = 80;
+const ovenX = 250;
+const ovenWidth = 150;
+const plateX = canvas.width - 100;
+const plateY = beltY + 40;
 
-const seals = [];
-const sealRadius = 20;
-const maxSeals = 5;
+const pancakes = [];
+const radius = 20;
+const thickness = 12;
 
-function initSeals() {
-    for (let i = 0; i < maxSeals; i++) {
-        const x = 80 + Math.random() * (canvas.width - 160);
-        const y = canvas.height - 80 - Math.random() * 40;
-        seals.push({ x, y, caught: false });
-    }
+let stackCount = 0;
+
+function drawConveyor() {
+    ctx.fillStyle = '#555';
+    ctx.fillRect(0, beltY, canvas.width, beltHeight);
 }
 
 function drawMachine() {
-    ctx.fillStyle = '#ccc';
-    ctx.fillRect(100, 80, canvas.width - 200, canvas.height - 160);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(100, 80, canvas.width - 200, canvas.height - 160);
+    ctx.fillStyle = '#999';
+    ctx.fillRect(machineX - 40, beltY - 80, 80, 80);
+    ctx.fillStyle = '#777';
+    ctx.fillRect(machineX - 10, beltY - 90, 20, 30);
 }
 
-function drawSeals() {
-    seals.forEach(seal => {
-        if (!seal.caught) {
-            const img = getSealImage();
-            ctx.drawImage(img, seal.x - sealRadius, seal.y - sealRadius, sealRadius * 2, sealRadius * 2);
+function drawOven() {
+    ctx.fillStyle = '#b5651d';
+    ctx.fillRect(ovenX, beltY - 80, ovenWidth, 80);
+    ctx.fillStyle = '#ffdead';
+    ctx.fillRect(ovenX + 10, beltY - 60, ovenWidth - 20, 40);
+}
+
+function drawPlate() {
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.ellipse(plateX, plateY + 6, 60, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ccc';
+    ctx.stroke();
+}
+
+function drawPancake(p) {
+    const grad = ctx.createRadialGradient(p.x, p.y, radius / 2, p.x, p.y, radius);
+    if (p.cooked) {
+        grad.addColorStop(0, '#fbd28b');
+        grad.addColorStop(1, '#c17d10');
+    } else {
+        grad.addColorStop(0, '#fff4c4');
+        grad.addColorStop(1, '#e8d089');
+    }
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, radius, thickness / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function updatePancakes() {
+    pancakes.forEach(p => {
+        if (p.stage === 'moving') {
+            p.x += 2;
+            if (p.x > ovenX + ovenWidth / 2) {
+                p.cooked = true;
+            }
+            if (p.x >= plateX) {
+                p.stage = 'falling';
+            }
+        } else if (p.stage === 'falling') {
+            const targetY = plateY - p.stackOffset;
+            if (p.y < targetY) {
+                p.y += 2;
+            } else {
+                p.y = targetY;
+                p.stage = 'stacked';
+            }
         }
     });
 }
 
-function drawClaw() {
-    ctx.fillStyle = '#666';
-    ctx.fillRect(clawX - clawWidth / 2, clawY - clawHeight, clawWidth, clawHeight);
-    ctx.fillRect(clawX - 5, 0, 10, clawY - clawHeight);
+function spawnPancake() {
+    const pancake = {
+        x: machineX,
+        y: beltY - radius,
+        cooked: false,
+        stage: 'moving',
+        stackOffset: stackCount * thickness
+    };
+    pancakes.push(pancake);
+    stackCount++;
 }
 
-function getSealImage() {
-    if (!getSealImage.cache) {
-        const off = document.createElement('canvas');
-        off.width = 64;
-        off.height = 64;
-        const octx = off.getContext('2d');
-
-        // body
-        const bodyGradient = octx.createRadialGradient(32, 40, 10, 32, 40, 28);
-        bodyGradient.addColorStop(0, '#f0f0f0');
-        bodyGradient.addColorStop(1, '#777');
-        octx.fillStyle = bodyGradient;
-        octx.beginPath();
-        octx.ellipse(32, 42, 24, 18, 0, 0, Math.PI * 2);
-        octx.fill();
-
-        // head
-        const headGradient = octx.createRadialGradient(32, 26, 5, 32, 26, 15);
-        headGradient.addColorStop(0, '#ffffff');
-        headGradient.addColorStop(1, '#888');
-        octx.fillStyle = headGradient;
-        octx.beginPath();
-        octx.ellipse(32, 26, 12, 10, 0, 0, Math.PI * 2);
-        octx.fill();
-
-        // flippers
-        octx.fillStyle = '#888';
-        octx.beginPath();
-        octx.ellipse(16, 48, 8, 4, 0, 0, Math.PI * 2);
-        octx.fill();
-        octx.beginPath();
-        octx.ellipse(48, 48, 8, 4, 0, 0, Math.PI * 2);
-        octx.fill();
-
-        // eyes and nose
-        octx.fillStyle = '#000';
-        octx.beginPath();
-        octx.arc(28, 24, 2, 0, Math.PI * 2);
-        octx.fill();
-        octx.beginPath();
-        octx.arc(36, 24, 2, 0, Math.PI * 2);
-        octx.fill();
-        octx.beginPath();
-        octx.arc(32, 30, 2, 0, Math.PI * 2);
-        octx.fill();
-
-        // simple whiskers
-        octx.strokeStyle = '#000';
-        octx.lineWidth = 1;
-        octx.beginPath();
-        octx.moveTo(32, 30);
-        octx.lineTo(24, 32);
-        octx.moveTo(32, 30);
-        octx.lineTo(40, 32);
-        octx.stroke();
-
-        const img = new Image();
-        img.src = off.toDataURL();
-        getSealImage.cache = img;
-    }
-    return getSealImage.cache;
-}
-
-function playSound() {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = 'square';
-    oscillator.frequency.setValueAtTime(220, audioCtx.currentTime);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start();
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-}
-
-function update() {
+function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawConveyor();
     drawMachine();
-    drawSeals();
-    if (dropping) {
-        dropProgress += 5;
-        clawY = 50 + dropProgress;
-        if (clawY >= canvas.height - 100) {
-            checkCatch();
-            dropping = false;
-            clawY = 50;
-            dropProgress = 0;
-        }
-    }
-    drawClaw();
-    requestAnimationFrame(update);
+    drawOven();
+    drawPlate();
+    updatePancakes();
+    pancakes.forEach(drawPancake);
+    requestAnimationFrame(draw);
 }
 
-function checkCatch() {
-    attempts++;
-    const threshold = 30;
-    for (const seal of seals) {
-        if (!seal.caught) {
-            const dx = seal.x - clawX;
-            const dy = seal.y - (canvas.height - 100);
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < threshold) {
-                if (Math.random() < 0.33) {
-                    seal.caught = true;
-                    wins++;
-                    playSound();
-                    alert('You won! Total wins: ' + wins + '/' + attempts);
-                } else {
-                    playSound();
-                    alert('Close! Try again.');
-                }
-                return;
-            }
-        }
-    }
-    playSound();
-    alert('Miss!');
-}
-
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') {
-        clawX = Math.max(120, clawX - 20);
-    } else if (e.key === 'ArrowRight') {
-        clawX = Math.min(canvas.width - 120, clawX + 20);
-    } else if (e.key === ' ') {
-        if (!dropping) {
-            dropping = true;
-        }
+window.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+        spawnPancake();
     }
 });
 
-initSeals();
-update();
+draw();

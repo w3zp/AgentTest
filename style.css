@@ -4,14 +4,8 @@ body {
     height: 100vh;
     justify-content: center;
     align-items: center;
-    background: repeating-linear-gradient(45deg, #ff4e50, #ff4e50 10px, #f9d423 10px, #f9d423 20px, #24fe41 20px, #24fe41 30px, #3f5efb 30px, #3f5efb 40px);
-    background-size: 200% 200%;
-    animation: graffiti 10s linear infinite;
-}
-
-@keyframes graffiti {
-    0% {background-position: 0 0;}
-    100% {background-position: 400px 400px;}
+    background: #f1f1f1;
+    font-family: sans-serif;
 }
 
 canvas {
