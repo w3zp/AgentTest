@@ -9,6 +9,16 @@ const ovenWidth = 150;
 const plateX = canvas.width - 250;
 const plateY = beltY + 40;
 
+// load images for a slightly more "photorealistic" look
+const images = {
+    belt: Object.assign(new Image(), { src: BELT_IMG }),
+    machine: Object.assign(new Image(), { src: MACHINE_IMG }),
+    oven: Object.assign(new Image(), { src: OVEN_IMG }),
+    plate: Object.assign(new Image(), { src: PLATE_IMG }),
+    seal: Object.assign(new Image(), { src: SEAL_IMG }),
+    pancake: Object.assign(new Image(), { src: PANCAKE_IMG })
+};
+
 const pancakes = [];
 const radius = 20;
 const thickness = 12;
@@ -30,14 +40,22 @@ let stackCount = 0;
 let captionEndTime = 0;
 
 function drawConveyor() {
-    ctx.fillStyle = '#555';
-    ctx.fillRect(0, beltY, canvas.width, beltHeight);
+    if (images.belt.complete) {
+        ctx.drawImage(images.belt, 0, beltY, canvas.width, images.belt.height);
+    } else {
+        ctx.fillStyle = '#555';
+        ctx.fillRect(0, beltY, canvas.width, beltHeight);
+    }
 }
 
 function drawMachine() {
-    ctx.fillStyle = '#999';
-    ctx.fillRect(machineX - 40, beltY - 80, 80, 80);
-    // draw lever
+    const w = 80, h = 80;
+    if (images.machine.complete) {
+        ctx.drawImage(images.machine, machineX - 40, beltY - h, w, h);
+    } else {
+        ctx.fillStyle = '#999';
+        ctx.fillRect(machineX - 40, beltY - h, w, h);
+    }
     ctx.save();
     ctx.translate(machineX + 40, beltY - 70);
     const angle = leverPressFrames > 0 ? Math.PI / 4 : 0;
@@ -45,67 +63,87 @@ function drawMachine() {
     ctx.fillStyle = '#444';
     ctx.fillRect(0, -5, 40, 10);
     ctx.restore();
-    ctx.fillStyle = '#777';
-    ctx.fillRect(machineX - 10, beltY - 90, 20, 30);
 }
 
 function drawOven() {
-    ctx.fillStyle = '#b5651d';
-    ctx.fillRect(ovenX, beltY - 80, ovenWidth, 80);
-    ctx.fillStyle = '#ffdead';
-    ctx.fillRect(ovenX + 10, beltY - 60, ovenWidth - 20, 40);
+    const h = 80;
+    if (images.oven.complete) {
+        ctx.drawImage(images.oven, ovenX, beltY - h, ovenWidth, h);
+    } else {
+        ctx.fillStyle = '#b5651d';
+        ctx.fillRect(ovenX, beltY - h, ovenWidth, h);
+    }
 }
 
 function drawPlate() {
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ellipsePath(plateX, plateY + 6, 60, 18);
-    ctx.fill();
-    ctx.strokeStyle = '#ccc';
-    ctx.stroke();
+    const w = 140, h = 60;
+    if (images.plate.complete) {
+        ctx.drawImage(images.plate, plateX - w/2, plateY - h/2, w, h);
+    } else {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ellipsePath(plateX, plateY + 6, 60, 18);
+        ctx.fill();
+        ctx.strokeStyle = '#ccc';
+        ctx.stroke();
+    }
 }
 
 function drawSeal() {
-    const baseX = plateX + 120;
-    const baseY = plateY - 30;
-    ctx.fillStyle = '#6a6a6a';
-    ctx.beginPath();
-    ellipsePath(baseX, baseY, 70, 50);
-    ctx.fill();
+    const x = plateX + 60;
+    const y = plateY - 120;
+    if (images.seal.complete) {
+        ctx.drawImage(images.seal, x, y, 200, 150);
+    } else {
+        const baseX = plateX + 120;
+        const baseY = plateY - 30;
+        ctx.fillStyle = '#6a6a6a';
+        ctx.beginPath();
+        ellipsePath(baseX, baseY, 70, 50);
+        ctx.fill();
 
-    ctx.beginPath();
-    ellipsePath(baseX + 50, baseY - 60, 30, 30);
-    ctx.fill();
+        ctx.beginPath();
+        ellipsePath(baseX + 50, baseY - 60, 30, 30);
+        ctx.fill();
 
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(baseX + 40, baseY - 65, 4, 0, Math.PI * 2);
-    ctx.arc(baseX + 60, baseY - 65, 4, 0, Math.PI * 2);
-    ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(baseX + 40, baseY - 65, 4, 0, Math.PI * 2);
+        ctx.arc(baseX + 60, baseY - 65, 4, 0, Math.PI * 2);
+        ctx.fill();
 
-    ctx.beginPath();
-    ctx.arc(baseX + 50, baseY - 55, 6, 0, Math.PI * 2);
-    ctx.fill();
+        ctx.beginPath();
+        ctx.arc(baseX + 50, baseY - 55, 6, 0, Math.PI * 2);
+        ctx.fill();
+    }
 
     if (Date.now() <= captionEndTime) {
         ctx.font = '20px sans-serif';
-        ctx.fillText('More pancakes!', baseX - 40, baseY - 90);
+        ctx.fillText('More pancakes!', x + 20, y - 10);
     }
 }
 
 function drawPancake(p) {
-    const grad = ctx.createRadialGradient(p.x, p.y, radius / 2, p.x, p.y, radius);
-    if (p.cooked) {
-        grad.addColorStop(0, '#fbd28b');
-        grad.addColorStop(1, '#c17d10');
+    const w = radius * 2;
+    const h = thickness;
+    if (images.pancake.complete) {
+        ctx.filter = p.cooked ? 'none' : 'grayscale(100%)';
+        ctx.drawImage(images.pancake, p.x - radius, p.y - h / 2, w, h);
+        ctx.filter = 'none';
     } else {
-        grad.addColorStop(0, '#fff4c4');
-        grad.addColorStop(1, '#e8d089');
+        const grad = ctx.createRadialGradient(p.x, p.y, radius / 2, p.x, p.y, radius);
+        if (p.cooked) {
+            grad.addColorStop(0, '#fbd28b');
+            grad.addColorStop(1, '#c17d10');
+        } else {
+            grad.addColorStop(0, '#fff4c4');
+            grad.addColorStop(1, '#e8d089');
+        }
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ellipsePath(p.x, p.y, radius, thickness / 2);
+        ctx.fill();
     }
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ellipsePath(p.x, p.y, radius, thickness / 2);
-    ctx.fill();
 }
 
 function updatePancakes() {
