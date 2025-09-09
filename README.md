@@ -1,10 +1,15 @@
-# Pancake Factory Game
+# Cool Fireworks
 
-Press the **space bar** to squirt a pancake onto the conveyor belt. It will roll
-through an oven and finally land on the plate. Each cooked pancake stacks on the
-plate allowing you to build a tasty looking tower of flapjacks.
+Launch colorful fireworks directly in your browser.
 
-The latest version uses photo-inspired textures for the pancake factory. Since
-binary assets aren't stored in this repo, small images are embedded as base64
-strings in JavaScript. The result is a slightly more realistic look and a dash
-of humor as the seal begs for "More pancakes!" Enjoy the tasty stack!
+## Running
+
+Open `index.html` in a modern browser or enable GitHub Pages for this repository and visit the site.
+
+To preview locally:
+
+```bash
+python -m http.server
+```
+
+Then browse to <http://localhost:8000>.
