@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crazy AI Slop</title>
+  <style>
+    body {
+      background: black;
+      color: #0f0;
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      font-size: 48px;
+      margin-top: 50px;
+    }
+    #slop {
+      font-size: 24px;
+      margin-top: 20px;
+      color: #ff66cc;
+    }
+  </style>
+</head>
+<body>
+  <marquee behavior="alternate" scrollamount="10">
+    <h1>CRAZY AI SLOP</h1>
+  </marquee>
+  <div id="slop"></div>
+  <script>
+    const adjectives = ["wild", "funky", "retro", "groovy", "radical", "cosmic"];
+    const nouns = ["slop", "vibes", "pixels", "dreams", "beats", "buzz"];
+    function makeSlop() {
+      const a = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const n = nouns[Math.floor(Math.random() * nouns.length)];
+      return "Serving up " + a + " " + n + "!";
+    }
+    function update() {
+      document.getElementById('slop').textContent = makeSlop();
+    }
+    update();
+    setInterval(update, 3000);
+  </script>
+</body>
+</html>
