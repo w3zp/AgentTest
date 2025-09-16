@@ -1,43 +1,180 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Crazy AI Slop</title>
-  <style>
-    body {
-      background: black;
-      color: #0f0;
-      font-family: "Comic Sans MS", cursive, sans-serif;
-      text-align: center;
-    }
-    h1 {
-      font-size: 48px;
-      margin-top: 50px;
-    }
-    #slop {
-      font-size: 24px;
-      margin-top: 20px;
-      color: #ff66cc;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DripTag — Graffiti Sticker Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
-  <marquee behavior="alternate" scrollamount="10">
-    <h1>CRAZY AI SLOP</h1>
-  </marquee>
-  <div id="slop"></div>
-  <script>
-    const adjectives = ["wild", "funky", "retro", "groovy", "radical", "cosmic"];
-    const nouns = ["slop", "vibes", "pixels", "dreams", "beats", "buzz"];
-    function makeSlop() {
-      const a = adjectives[Math.floor(Math.random() * adjectives.length)];
-      const n = nouns[Math.floor(Math.random() * nouns.length)];
-      return "Serving up " + a + " " + n + "!";
-    }
-    function update() {
-      document.getElementById('slop').textContent = makeSlop();
-    }
-    update();
-    setInterval(update, 3000);
-  </script>
+  <div class="bg-noise" aria-hidden="true"></div>
+  <div class="spray-overlay" aria-hidden="true"></div>
+  <header class="site-header">
+    <div class="logo" aria-label="DripTag graffiti logo">DripTag</div>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#gallery">Sticker Wall</a>
+      <a href="#features">Features</a>
+      <a href="#custom">Custom Builder</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="top">
+      <div class="hero-text">
+        <p class="eyebrow">Hand sprayed. Neon loud. Vinyl tough.</p>
+        <h1>Graffiti Sticker Studio</h1>
+        <p class="description">
+          Drop wild colorways, remix street legends, and print them as weatherproof stickers. Build a pack that slaps on any surface.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-action="shuffle">Shuffle the Wall</button>
+          <a class="btn btn-ghost" href="#custom">Build Your Pack</a>
+        </div>
+        <ul class="hero-highlights" aria-label="Sticker perks">
+          <li>UV sealed vinyl</li>
+          <li>Free worldwide shipping</li>
+          <li>Stacks of 12, 24, or 48</li>
+        </ul>
+      </div>
+      <div class="hero-preview" aria-hidden="true">
+        <div class="sticker-card sticker-card--cyan">
+          <span class="label">Limited Drop</span>
+          <span class="title">Skyline Dreams</span>
+          <span class="tag">Krylon Blue • Electric Mist</span>
+        </div>
+        <div class="sticker-card sticker-card--magenta">
+          <span class="label">Collab Pack</span>
+          <span class="title">Metro Riff</span>
+          <span class="tag">DripTag × RailKid</span>
+        </div>
+        <div class="sticker-card sticker-card--sunset">
+          <span class="label">Sticker of the Week</span>
+          <span class="title">Chrome Halo</span>
+          <span class="tag">Reflective Chrome • Sunset Fade</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <h2>Why artists vibe with DripTag</h2>
+      <div class="feature-grid">
+        <article class="feature">
+          <h3>Archival Ink Blasts</h3>
+          <p>Rich pigment saturation with triple-layer lamination keeps every stroke bold even in harsh sun.</p>
+        </article>
+        <article class="feature">
+          <h3>Sticker Stack Engine</h3>
+          <p>Our layout generator tiles your pieces automatically for maximum sheet density and minimum waste.</p>
+        </article>
+        <article class="feature">
+          <h3>Drop-Ready Mockups</h3>
+          <p>Instant previews on skate decks, laptops, and street posts help you ship collections that convert.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="gallery" id="gallery">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Sticker Wall</p>
+          <h2>Fresh pulls from the print lab</h2>
+          <p class="description">Tap shuffle to remix the wall and surface new color stories for your crew.</p>
+        </div>
+        <button class="btn btn-outline" id="shuffle-wall">Shuffle the Wall</button>
+      </div>
+      <div class="sticker-grid">
+        <article class="sticker" data-title="Midnight Echo" data-colors="#7b2ff7,#f107a3">
+          <span class="sticker-title">Midnight Echo</span>
+          <span class="sticker-meta">Glow-in-the-dark vinyl</span>
+        </article>
+        <article class="sticker" data-title="Ghostline" data-colors="#2af598,#009efd">
+          <span class="sticker-title">Ghostline</span>
+          <span class="sticker-meta">Holographic foil</span>
+        </article>
+        <article class="sticker" data-title="Siren Sizzle" data-colors="#ff5858,#f09819">
+          <span class="sticker-title">Siren Sizzle</span>
+          <span class="sticker-meta">Thermo-reactive ink</span>
+        </article>
+        <article class="sticker" data-title="Citrus Pulse" data-colors="#ffe53b,#ff2525">
+          <span class="sticker-title">Citrus Pulse</span>
+          <span class="sticker-meta">Neon matte finish</span>
+        </article>
+        <article class="sticker" data-title="Neon Tide" data-colors="#43e97b,#38f9d7">
+          <span class="sticker-title">Neon Tide</span>
+          <span class="sticker-meta">Waterproof vinyl</span>
+        </article>
+        <article class="sticker" data-title="Chrome Byte" data-colors="#30cfd0,#330867">
+          <span class="sticker-title">Chrome Byte</span>
+          <span class="sticker-meta">Mirror chrome overlay</span>
+        </article>
+        <article class="sticker" data-title="Toxic Bloom" data-colors="#ffe29f,#ffa99f">
+          <span class="sticker-title">Toxic Bloom</span>
+          <span class="sticker-meta">Soft-touch laminate</span>
+        </article>
+        <article class="sticker" data-title="Metro Bloom" data-colors="#fa709a,#fee140">
+          <span class="sticker-title">Metro Bloom</span>
+          <span class="sticker-meta">Limited artist drop</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="customizer" id="custom">
+      <div class="customizer-card">
+        <p class="eyebrow">Custom Builder</p>
+        <h2>Design a quick tag</h2>
+        <p class="description">Type your mantra, pick a palette, and we’ll mock up a sticker instantly. Save it to your wall or export to the print lab.</p>
+        <form id="custom-sticker-form">
+          <label class="form-field">
+            <span>Sticker text</span>
+            <input type="text" id="sticker-text" name="sticker-text" maxlength="28" placeholder="Stay Vivid" required />
+          </label>
+          <fieldset class="form-field">
+            <legend>Colorway</legend>
+            <div class="color-palette">
+              <label class="color-swatch" style="--swatch-a:#ff4dff;--swatch-b:#ffe600;">
+                <input type="radio" name="colorway" value="#ff4dff,#ffe600" checked />
+                <span>Pop Candy</span>
+              </label>
+              <label class="color-swatch" style="--swatch-a:#00f5d4;--swatch-b:#9b5de5;">
+                <input type="radio" name="colorway" value="#00f5d4,#9b5de5" />
+                <span>Vapor Bloom</span>
+              </label>
+              <label class="color-swatch" style="--swatch-a:#f72585;--swatch-b:#7209b7;">
+                <input type="radio" name="colorway" value="#f72585,#7209b7" />
+                <span>Night Drive</span>
+              </label>
+              <label class="color-swatch" style="--swatch-a:#ffba08;--swatch-b:#fb5607;">
+                <input type="radio" name="colorway" value="#ffba08,#fb5607" />
+                <span>Heat Burst</span>
+              </label>
+            </div>
+          </fieldset>
+          <button type="submit" class="btn btn-primary">Generate sticker</button>
+          <p class="form-note">Your design drops straight to the wall with a fresh rotation and glow.</p>
+        </form>
+      </div>
+      <div class="custom-preview" aria-live="polite">
+        <div class="dynamic-sticker" id="dynamic-sticker">
+          <span class="accent">New!</span>
+          <span class="dynamic-text">Stay Vivid</span>
+          <span class="dynamic-meta">2" die-cut • satin finish</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="footer-year"></span> DripTag Labs. Stay loud, stay legal.</p>
+    <div class="footer-links">
+      <a href="#top">Back to top</a>
+      <a href="mailto:hello@driptag.studio">Contact</a>
+      <a href="#">Print guide</a>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
